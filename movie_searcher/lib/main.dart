@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/MoviesList.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,9 +11,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Container(
-        // todo TO BE IMPLEMENTED
-      ),
+      home: MoviesList(),
     );
   }
 }
