@@ -1,5 +1,5 @@
-import 'package:movie_searcher/model/Movie.dart';
+import 'package:movie_searcher/model/MovieList.dart';
 
 abstract class MovieRepository {
-  Future<List<Movie>> fetchMovies(int pageNumber);
+  Future<MovieList> fetchMovies(int pageNumber);
 }
