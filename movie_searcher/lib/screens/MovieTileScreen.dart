@@ -41,6 +41,7 @@ class MovieTileScreenState extends State<MovieTileScreen> {
   Widget build(BuildContext context) {
     return NotificationListener(
         child: GridView.builder(
+      padding: EdgeInsets.only(top: 8),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, childAspectRatio: 0.85),
       controller: scrollController,
@@ -54,7 +55,6 @@ class MovieTileScreenState extends State<MovieTileScreen> {
 }
 
 class MovieSingleTileScreen extends StatelessWidget {
-
   final Movie movie;
 
   MovieSingleTileScreen({this.movie});
@@ -62,10 +62,29 @@ class MovieSingleTileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(15))),
+      color: Colors.white,
+      elevation: 5.0,
       child: Stack(
+        fit: StackFit.expand,
         children: <Widget>[
-          Image(image: NetworkImageWithRetry(IMAGE_BASE_URL + movie.posterPath),),
-          Align()
+          Image(
+            image: NetworkImageWithRetry(IMAGE_BASE_URL + movie.posterPath,
+                scale: 0.85),
+            fit: BoxFit.fill,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+                padding: EdgeInsets.only(bottom: 5.0, right: 5.0),
+                child: Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('Rating : ${movie.voteAverage}'),
+                    ))),
+          )
         ],
       ),
     );
