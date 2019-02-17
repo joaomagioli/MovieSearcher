@@ -4,6 +4,7 @@ import 'package:movie_searcher/model/Movie.dart';
 import 'package:movie_searcher/utils/MovieLoadMoreStatus.dart';
 import 'package:async/async.dart';
 import 'package:flutter_image/network.dart';
+import 'package:movie_searcher/repository/MovieRepositoryImpl.dart';
 
 const String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
 
@@ -19,6 +20,7 @@ class MovieTileScreen extends StatefulWidget {
 class MovieTileScreenState extends State<MovieTileScreen> {
   MovieLoadMoreStatus loadMoreStatus = MovieLoadMoreStatus.STABLE;
   final ScrollController scrollController = ScrollController();
+  final movieRepository = MovieRepositoryImpl();
   List<Movie> movies;
   int currentPageNumber;
   CancelableOperation movieOperation;
@@ -40,17 +42,39 @@ class MovieTileScreenState extends State<MovieTileScreen> {
   @override
   Widget build(BuildContext context) {
     return NotificationListener(
+        onNotification: onNotification,
         child: GridView.builder(
-      padding: EdgeInsets.only(top: 8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, childAspectRatio: 0.85),
-      controller: scrollController,
-      itemCount: movies.length,
-      physics: AlwaysScrollableScrollPhysics(),
-      itemBuilder: (_, index) {
-        return MovieSingleTileScreen(movie: movies[index]);
-      },
-    ));
+          padding: EdgeInsets.only(top: 8),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, childAspectRatio: 0.85),
+          controller: scrollController,
+          itemCount: movies.length,
+          physics: AlwaysScrollableScrollPhysics(),
+          itemBuilder: (_, index) {
+            return MovieSingleTileScreen(movie: movies[index]);
+          },
+        ));
+  }
+
+  bool onNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      if (scrollController.position.maxScrollExtent > scrollController.offset &&
+          scrollController.position.maxScrollExtent - scrollController.offset <=
+              50) {
+        if (loadMoreStatus != null &&
+            loadMoreStatus == MovieLoadMoreStatus.STABLE) {
+          loadMoreStatus = MovieLoadMoreStatus.LOADING;
+          movieOperation = CancelableOperation.fromFuture(movieRepository
+              .fetchMovies(currentPageNumber + 1)
+              .then((moviesObject) {
+            currentPageNumber = moviesObject.page;
+            loadMoreStatus = MovieLoadMoreStatus.STABLE;
+            setState(() => movies.addAll(moviesObject.movies));
+          }));
+        }
+      }
+    }
+    return true;
   }
 }
 
